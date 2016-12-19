@@ -4,10 +4,10 @@ Option Explicit
 'To include this script,
 'Execute CreateObject("Scripting.FileSystemObject").openTextFile(sFileFullPath).readAll()|Where sFileFullPath is likely C:\LOGS\
 ' Open
-Dim oCommonCode:set oCommonCode = New zCCzCommonCodeClass
+Dim oCommonCode:set oCommonCode = New zCCzCommonCode
 Dim CC:set CC = oCommonCode 'Alias
 ' CommonCodeClass (intended to be a static class)
-Class zCCzCommonCodeClass
+Class zCCzCommonCode
 	'This class serves as a host to other classes in this library.
 	Private LoDebugger,LoEnum
 	' Class_Initialize
@@ -31,7 +31,7 @@ Class zCCzCommonCodeClass
 		IsEqualV2 = False
 		if CC.VarTypeV2(vVar1)=CC.E.eString or CC.VarTypeV2(vVar2)=CC.E.eString or CC.VarTypeV2(vVar1)=CC.E.eRegExpMatch or CC.VarTypeV2(vVar2)=CC.E.eRegExpMatch then
 			if not (CC.IsStringable(vVar1) and CC.IsStringable(vVar2)) then Exit Function
-			IsEqualV2 = not CBool(StrComp(UCase(CStr(vVar1)),UCase(CStr(vVar2))))
+			IsEqualV2 = UCase(CStr(vVar1))=UCase(CStr(vVar2))
 		elseif CC.VarTypeV2(vVar1)=CC.E.eArray or CC.VarTypeV2(vVar2)=CC.E.eArray then
 			if not (CC.VarTypeV2(vVar1)=CC.E.eArray and CC.VarTypeV2(vVar2)=CC.E.eArray) then Exit Function
 			if CC.Size(vVar1) <> CC.Size(vVar2) then Exit Function
@@ -42,7 +42,7 @@ Class zCCzCommonCodeClass
 			IsEqualV2 = True
 		else
 			On Error Resume Next
-			IsEqualV2 = CBool(vVar1=vVar2)
+			IsEqualV2 = vVar1=vVar2
 		end if
 	end Function
 	Public Function IsBlankV2(vVariable)
@@ -443,7 +443,12 @@ Class zCCzDebugClass
 		IsDebugLevelMet=CBool(iDebugLevel=-1 or (iThreshold<>0 and iDebugLevel<=iThreshold))
 	end Function
 	Public Sub ViewLog
-		CreateObject("WScript.Shell").Run LsLogFullPath
+		if not CC.IsBlankV2(oLogFileHandle) then 
+			CreateObject("WScript.Shell").Run LsLogFullPath
+		else
+			MsgBox "ViewLog\Log File does not exist."
+		end if
+		'CreateObject("Scripting.FileSystemObject").FileExists(LsLogFullPath)
 	end Sub
 end Class
 ' EnumClass (intended to be a static class)
@@ -548,48 +553,3 @@ Function Test1
 	
 	CC.D.Debug 4,1
 end Function
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
